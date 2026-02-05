@@ -1,5 +1,22 @@
 import mongoose from "mongoose";
 
+const lessonTimeSchema= new mongoose.Schema({
+  lesson:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Lesson",
+    required:true
+  },
+  timeSpent:{
+    type:Number,
+    default:0
+  },
+  lastUpdated:{
+    type:Date,
+    default:Date.now()
+  }
+  
+},{_id:false})
+
 const lessonProgressSchema=new mongoose.Schema({
   user:{
     type:mongoose.Schema.Types.ObjectId,
@@ -18,6 +35,14 @@ const lessonProgressSchema=new mongoose.Schema({
   inProgressLesson:{
      type:mongoose.Schema.Types.ObjectId,
     ref:"Lesson"
+  },
+  lessonTime:[lessonTimeSchema],
+  isCourseCompleted:{
+       type:Boolean,
+       default:false
+  },
+  completedAt:{
+    type:Date
   },
   lastAccessedAt: {
       type: Date,

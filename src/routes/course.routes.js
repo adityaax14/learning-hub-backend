@@ -19,7 +19,8 @@ router.post(
 router.get("/:courseId/lessons/:lessonId",verifyJWT,getLessonById);
 router.post( "/:courseId/lessons/:lessonId/start",verifyJWT,startLesson);
 router.post( "/:courseId/lessons/:lessonId/complete",verifyJWT,completeLesson);
-router.get("/:courseId/progress",verifyJWT,getCourseProgress)
+router.get("/:courseId/progress",verifyJWT,getCourseProgress);
+
 
 
 export default router;

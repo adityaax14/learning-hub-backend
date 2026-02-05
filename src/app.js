@@ -18,12 +18,14 @@ app.use(express.static("public"))
 import userRouter from './routes/user.routes.js'
 import courseRouter from "./routes/course.routes.js"
 import lessonRouter from "./routes/lessons.routes.js"
+import progressRouter from "./routes/progress.routes.js"
 
 
 
 app.use("/api/v2/users",userRouter)
 app.use("/api/v2/courses",courseRouter)
 app.use("/api/v2/lessons",lessonRouter)
+app.use("/api/v2",progressRouter)
 
 
 export {app}
