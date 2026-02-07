@@ -6,8 +6,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { LessonProgress } from "../models/lessonProgress.model.js";
 
 
+
 export const getCourseAnalytics= asyncHandler(async(req,res)=>{
    const {courseId}= req.params;
+   
    const userId=req.user._id;
 
    const progress = await LessonProgress.findOne({
@@ -58,3 +60,78 @@ export const getCourseAnalytics= asyncHandler(async(req,res)=>{
     })
   );
 })
+
+export const getCreatorAnalytics=(asyncHandler(async(req,res)=>{
+  const {courseId}=req.params;
+     const course = await Course.findById(courseId);
+
+if (course.creator.toString() !== req.user._id.toString()) {
+  throw new ApiError(403, "Not authorized");
+}
+ 
+     const totalLearners=await LessonProgress.countDocuments({
+        course:courseId
+     });
+     const completedLearners=await LessonProgress.countDocuments({
+      course:courseId,
+      isCourseCompleted:true
+     });
+
+      const completionRate =
+  totalLearners === 0
+    ? 0
+    : Math.round((completedLearners / totalLearners) * 100);
+
+    const lessonTimeStats = await LessonProgress.aggregate([
+  { $match: { course: new mongoose.Types.ObjectId(courseId) } },
+  { $unwind: "$lessonTime" },
+  {
+    $group: {
+      _id: "$lessonTime.lesson",
+      totalTime: { $sum: "$lessonTime.timeSpent" }
+    }
+  },
+  {
+    $lookup: {
+      from: "lessons",
+      localField: "_id",
+      foreignField: "_id",
+      as: "lesson"
+    }
+  },
+  { $unwind: "$lesson" },
+  {
+    $project: {
+      lessonTitle: "$lesson.title",
+      totalTime: 1
+    }
+  }
+]);
+
+const dailyActivity = await LessonProgress.aggregate([
+  { $match: { course: new mongoose.Types.ObjectId(courseId) } },
+  {
+    $group: {
+      _id: {
+        $dateToString: { format: "%Y-%m-%d", date: "$lastAccessedAt" }
+      },
+      activeUsers: { $sum: 1 }
+    }
+  },
+  { $sort: { _id: 1 } }
+]);
+
+return res.json(
+  new ApiResponse(200, {
+    totalLearners,
+    completedLearners,
+    completionRate,
+    lessonTimeStats,
+    dailyActivity
+  })
+);
+
+
+
+}));
+  
