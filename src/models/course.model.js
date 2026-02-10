@@ -30,7 +30,10 @@ const courseSchema=new mongoose.Schema(
       ref:"Lesson",
       
     }
-  ]
+  ],
+  isPublic :{
+    
+  }
 
   },
   {timestamps:true}
